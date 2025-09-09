@@ -1,0 +1,56 @@
+{
+  "name": "waku-secure-chat",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "dist/cli.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "start": "node dist/cli.js",
+    "clean": "rm -rf dist",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --write src/**/*.ts",
+    "prepare": "npm run build",
+    "postinstall": "mkdir -p secure-storage"
+  },
+  "bin": {
+    "waku-chat": "./dist/cli.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@chainsafe/libp2p-gossipsub": "^14.1.1",
+    "@metamask/eth-sig-util": "^8.2.0",
+    "@noble/ed25519": "^3.0.0",
+    "@waku/core": "^0.0.38",
+    "@waku/message-encryption": "^0.0.36",
+    "@waku/sdk": "^0.0.34",
+    "@waku/utils": "^0.0.26",
+    "chalk": "^5.6.0",
+    "commander": "^14.0.0",
+    "debug": "^4.4.1",
+    "dotenv": "^17.2.2",
+    "eciesjs": "^0.4.15",
+    "ethers": "^6.15.0",
+    "js-waku": "^0.30.0",
+    "libsodium-wrappers": "^0.7.15",
+    "protobufjs": "^7.5.4",
+    "protons": "^7.7.0",
+    "uuid": "^12.0.0"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.12",
+    "@types/libsodium-wrappers": "^0.7.14",
+    "@types/node": "^24.3.1",
+    "@types/uuid": "^10.0.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}
