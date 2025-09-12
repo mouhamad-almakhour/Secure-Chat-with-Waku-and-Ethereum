@@ -1,6 +1,6 @@
 # Secure Chat with Waku Protocol
 
-This project is a secure, end-to-end encrypted chat application using the **Waku network** and Ethereum key pairs. Users can send and receive messages securely, sign messages, and broadcast their public keys for encryption.
+This project is a secure, end-to-end encrypted chat application using the **Waku message protocol** and Ethereum key pairs. Users can send and receive messages securely, sign messages, and broadcast their public keys for encryption.
 
 # Table of Contents
 - [Prerequisites](#prerequisites)
