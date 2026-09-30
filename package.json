@@ -8,6 +8,7 @@
     "build": "tsc",
     "dev": "tsx src/cli.ts",
     "start": "node dist/cli.js",
+    "start-chat": "tsx src/cli.ts start-chat",
     "clean": "rm -rf dist",
     "test": "jest",
     "test:watch": "jest --watch",

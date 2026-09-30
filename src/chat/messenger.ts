@@ -10,13 +10,19 @@ export async function sendMessage(sender: UserIdentity,
   recipientAddress: string,
   plaintext: string) {
 
+  const recipientPublicKey = getPublicKey(recipientAddress);
+  if (!recipientPublicKey) {
+    throw new Error(
+      `No encryption key is saved for ${recipientAddress}. Import their Waku Chat contact invite first.`,
+    );
+  }
+
   // 1. Sign message
   const signature = await sender.signMessage(plaintext);
-  const recipientpublicKey = getPublicKey(recipientAddress)!;
-  console.log("the public key:", recipientpublicKey);
+  console.log("the public key:", recipientPublicKey);
 
-  // 2. Encrypt 
-  const encryptedMessage = encrypt(recipientpublicKey, Buffer.from(plaintext, "utf8"));
+  // 2. Encrypt
+  const encryptedMessage = encrypt(recipientPublicKey, Buffer.from(plaintext, "utf8"));
 
   // 3. Construct payload
   const payload = DataPacket.create({
