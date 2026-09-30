@@ -1,4 +1,23 @@
-# Secure Chat with Waku Protocol
+# Secure Decentralized Chat — Waku & Ethereum
+
+Designed and implemented a secure, end-to-end encrypted messaging application using the Waku decentralized messaging protocol and Ethereum key pairs as cryptographic identities.
+
+The application enables users to exchange messages securely without relying on a centralized messaging server. Each message is signed using the sender's Ethereum private key, encrypted with the recipient's public key using ECIES, and transmitted through the Waku network. The recipient decrypts the message with their private key and verifies the sender's signature to ensure authenticity and integrity.
+
+
+## Key technical work
+- Implemented Ethereum-based cryptographic identities for users.
+- Implemented message signing and signature verification.
+- Implemented ECIES public-key encryption for end-to-end message confidentiality.
+- Integrated the Waku decentralized messaging protocol for message transport.
+- Implemented public-key discovery and broadcasting between users.
+- Built the messaging workflow as a TypeScript CLI application.
+- Designed the message lifecycle from identity creation and key discovery through encryption, decentralized transmission, decryption and authentication.
+- Integrated Polygon network configuration through an RPC endpoint for the Web3 environment.
+
+__Technologies__: TypeScript · Node.js · Ethereum · Waku · Web3 · Cryptography · ECIES · Digital Signatures · Public-Key Cryptography · Polygon · CLI
+
+__Type__: Personal R&D / Independent Project
 
 A TypeScript command-line chat client that sends signed, end-to-end encrypted messages over Waku. Ethereum wallets provide chat identity and message signatures. Creating an address is local and does not require an on-chain transaction.
 
@@ -54,7 +73,11 @@ Import the other person's invite when starting:
 npm run start-chat -- --invite "<CONTACT_INVITE>"
 ~~~
 
-You can also paste an invite when prompted. The CLI validates the invite and saves the contact's public key in secure-storage/contacts.json. The contact list is local to that machine. If you provide only a recipient address, its public key must already be saved or sending will report that you need the contact invite. Recipient addresses are checked for Ethereum format; an invalid value gets up to three attempts with a format hint, then the chat is cancelled.
+### Architecture / security flow
+Ethereum Identity → Public-Key Discovery → Message Signing → ECIES Encryption → Waku Network → Decryption → Signature Verification
+
+### Message Flow:
+1. Sender signs the message with their Ethereum private key.
 
 After the other person starts their chat, type a message and press Enter to send it.
 
@@ -73,4 +96,12 @@ This repository currently provides a CLI, not a browser application. The CLI rec
 
 ## Version
 
-1.0.0
+- Public keys are stored locally in src/publickeys/address.json.
+
+- Other users retrieve the public key from storage to encrypt messages.
+
+# Version
+Version: v1.0.0
+
+# License: 
+Apache-2.0
