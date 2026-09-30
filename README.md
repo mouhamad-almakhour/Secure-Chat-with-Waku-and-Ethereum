@@ -19,76 +19,59 @@ __Technologies__: TypeScript · Node.js · Ethereum · Waku · Web3 · Cryptogra
 
 __Type__: Personal R&D / Independent Project
 
+A TypeScript command-line chat client that sends signed, end-to-end encrypted messages over Waku. Ethereum wallets provide chat identity and message signatures. Creating an address is local and does not require an on-chain transaction.
 
-# Table of Contents
-- [Prerequisites](#prerequisites)
-- [CLI Command](#cli-command)
-- [How It Works](#how-it-works)
-- [Version](#version)
+## Requirements
 
-# Getting Started
+- Node.js LTS and npm
+- A reachable Ethereum JSON-RPC endpoint
+- A wallet for each chat participant
 
-## Prerequisites
-Before you begin, ensure you have the following installed:
+## Setup
 
-- Unix-based operating system (Linux, MacOS)
-- [Node.js](https://nodejs.org/) (LTS version recommended)
-- [Node Package Manager (npm)](https://www.npmjs.com/)
-- Ethereum wallet private keys for testing multiple users
+Install dependencies:
 
-### Configuration: .env
-1. Create the `.env` file from the sample:
+~~~bash
+npm install
+~~~
 
-```bash
-- cp .env-sample .env
-```
-2. Fill the .env config file with the proper variables:
-```bash
-- BLOCKCHAIN_NETWORK=<Your Polygon RPC URL>
-```
+Create a .env file in the project root and set the Ethereum RPC URL used to read wallet/network information:
 
-3. Install dependencies:
-```bash
-- npm install
-```
+~~~dotenv
+BLOCKCHAIN_NETWORK=https://your-ethereum-rpc-url
+~~~
 
-4. Compile TypeScript to dist/
-```bash
-- npm run build
-```
+## Start a chat
 
-## CLI Command
+Start the CLI directly from TypeScript:
 
-Start a chat session for a user:
-```bash
-npm start -- start-chat -k <PRIVATE_KEY> -r <RECIPIENT_ADDRESS>
-```
+~~~bash
+npm run start-chat
+~~~
 
-* -k, --key → Your Ethereum private key
+On first use, choose to create a local wallet or import a private key. Imported keys are hidden while typing; an invalid key can be re-entered up to three times. A generated private key is shown once; back it up securely before continuing.
 
-* -r, --recipient → Ethereum address of the recipient
+You can provide an existing key or recipient as options, though passing a private key on the command line can expose it in shell history or process listings:
 
-__Note__: The PRIVATE_KEY is required for signing and decrypting messages. Each user should have a different private key.
+~~~bash
+npm run start-chat -- --key <PRIVATE_KEY> --recipient <RECIPIENT_ADDRESS>
+~~~
 
-This command will create a user identity, start the receiver to listen for messages, broadcast your public key to the network, and open a CLI prompt for sending messages.
+## Local identities and aliases
 
-## How It Works
+When you create or import a wallet interactively, the CLI asks for an alias and saves the alias and address in secure-storage/identities.json. That file does not contain private keys.
 
-### Example:
-```bash
-Terminal 1 (User A):
+On later runs, choose a saved identity by its alias. The CLI asks for its private key, hides the input, and checks that the key matches the selected address. You get up to three attempts; after that the CLI exits without changing the identity list. The key is not saved, so you must enter it again each time. The secure-storage directory is local to the working directory and is ignored by Git.
 
-- npm start -- start-chat -k 0xUSERA_PRIVATE_KEY -r 0xUSERA_ADDRESS
-```
+## Contact invites
 
-```bash
-Terminal 2 (User B):
+The CLI displays your shareable contact invite when it starts. The invite contains your Ethereum address and public encryption key; it never contains your private key. Send it to the person you want to chat with.
 
-- npm start -- start-chat -k 0xUSERB_PRIVATE_KEY -r 0xUSERB_ADDRESS
-```
-- Messages typed in the terminal are sent to the recipient.
+Import the other person's invite when starting:
 
-- Incoming messages are displayed automatically.
+~~~bash
+npm run start-chat -- --invite "<CONTACT_INVITE>"
+~~~
 
 ### Architecture / security flow
 Ethereum Identity → Public-Key Discovery → Message Signing → ECIES Encryption → Waku Network → Decryption → Signature Verification
@@ -96,19 +79,22 @@ Ethereum Identity → Public-Key Discovery → Message Signing → ECIES Encrypt
 ### Message Flow:
 1. Sender signs the message with their Ethereum private key.
 
-2. Sender encrypts the message using the recipient's public key (ECIES).
+After the other person starts their chat, type a message and press Enter to send it.
 
-3. Sender broadcasts the encrypted message via the Waku network.
+## Message flow
 
-4. Recipient receives the message on their Waku subscription.
+1. The sender signs the plaintext with their Ethereum wallet.
+2. The sender encrypts the plaintext with the recipient's public encryption key.
+3. The encrypted packet is sent over Waku.
+4. The recipient decrypts the packet with their private key and verifies the sender's signature.
 
-5. Recipient decrypts the message using their Ethereum private key.
+The message content is encrypted. Sender and recipient addresses, timestamps, and message type are visible in the packet.
 
-6. Recipient verifies the signature to ensure authenticity.
+## Deployment scope
 
-### Public Key Broadcast
+This repository currently provides a CLI, not a browser application. The CLI receiver is a long-running process and is not deployed as a Vercel Function. A browser client is planned separately and is not included yet.
 
-- Each user broadcasts their public key when starting the chat.
+## Version
 
 - Public keys are stored locally in src/publickeys/address.json.
 

@@ -21,4 +21,7 @@ bin/
 *.dll
 *.so
 *.dylib
-*.pem 
+*.pem
+
+# Local identity labels and contact keys
+secure-storage/
