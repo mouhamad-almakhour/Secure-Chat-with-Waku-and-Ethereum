@@ -25,3 +25,7 @@ bin/
 
 # Local identity labels and contact keys
 secure-storage/
+.agents
+# UI build metadata
+ui/*.tsbuildinfo
+previews

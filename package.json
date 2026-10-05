@@ -26,24 +26,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@chainsafe/libp2p-gossipsub": "^14.1.1",
-    "@metamask/eth-sig-util": "^8.2.0",
-    "@noble/ed25519": "^3.0.0",
-    "@waku/core": "^0.0.38",
-    "@waku/message-encryption": "^0.0.36",
     "@waku/sdk": "^0.0.34",
     "@waku/utils": "^0.0.26",
-    "chalk": "^5.6.0",
     "commander": "^14.0.0",
-    "debug": "^4.4.1",
     "dotenv": "^17.2.2",
     "eciesjs": "^0.4.15",
     "ethers": "^6.15.0",
-    "js-waku": "^0.30.0",
-    "libsodium-wrappers": "^0.7.15",
-    "protobufjs": "^7.5.4",
-    "protons": "^7.7.0",
-    "uuid": "^12.0.0"
+    "protobufjs": "^7.6.6",
+    "@waku/interfaces": "0.0.33"
   },
   "devDependencies": {
     "@types/debug": "^4.1.12",

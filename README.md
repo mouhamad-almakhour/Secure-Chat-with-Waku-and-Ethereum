@@ -92,7 +92,7 @@ The message content is encrypted. Sender and recipient addresses, timestamps, an
 
 ## Deployment scope
 
-This repository currently provides a CLI, not a browser application. The CLI receiver is a long-running process and is not deployed as a Vercel Function. A browser client is planned separately and is not included yet.
+This repository provides a CLI and a local browser application in `ui/`. The CLI receiver is a long-running process and is not deployed as a Vercel Function. The UI runs locally using Vite and connects directly to Waku; a public hosted deployment and native desktop installers are not included.
 
 ## Version
 
@@ -105,3 +105,11 @@ Version: v1.0.0
 
 # License: 
 Apache-2.0
+
+## Local graphical application
+
+The React + Vite application lives in [ui](ui/README.md). Run `cd ui`, `npm install`, and `npm run dev`, then open the printed localhost URL. It supports local identity creation/import, CLI-compatible contact invites, encrypted messaging over Waku, and light/dark/system appearance.
+
+### Security protocol update
+
+Both peers must use this updated CLI/UI. Messages use v2 encrypted signed envelopes; legacy message packets and unsigned key broadcasts are rejected. Public v1 contact invites still work, including one-invite replies. Routing addresses and timestamps remain visible. Incoming messages expire after 24 hours (five minutes of future clock tolerance). Replay tracking lasts for the unlocked session and rejects further new messages when its 10,000-ID cache is full; reconnecting does not reset it in the UI. Restarting/unlocking resets replay protection. UI history retains the latest 500 messages and at most 20 pending requests. Use dedicated chat identities: this ECIES design has no forward secrecy. CLI key arguments are disabled; key setup requires an interactive terminal. Explicit backup reveal remains visible to terminal recordings.
