@@ -3,11 +3,17 @@ import { Command } from "commander";
 import { createInterface } from "node:readline";
 import { ethers } from "ethers";
 import { UserIdentity } from "./chat/identity.js";
-import { sendMessage, receiveMessage, BroadcastePublicKey } from "./chat/messenger.js";
+import {
+  sendMessage,
+  receiveMessage,
+  BroadcastePublicKey,
+} from "./chat/messenger.js";
 import { createContactInvite, parseContactInvite } from "./chat/invites.js";
 import { storePublicKey } from "./utility/publickeys.js";
-import { listLocalIdentities, saveLocalIdentity } from "./utility/identities.js";
-
+import {
+  listLocalIdentities,
+  saveLocalIdentity,
+} from "./utility/identities.js";
 
 const program = new Command();
 
@@ -15,19 +21,25 @@ let sharedPrompt: ReturnType<typeof createInterface> | undefined;
 
 function getPrompt(): ReturnType<typeof createInterface> {
   if (!sharedPrompt) {
-    sharedPrompt = createInterface({ input: process.stdin, output: process.stdout });
+    sharedPrompt = createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
   }
   return sharedPrompt;
 }
 
 function ask(question: string, hidden = false): Promise<string> {
   const prompt = getPrompt();
-  const mutablePrompt = prompt as unknown as { _writeToOutput: (value: string) => void };
+  const mutablePrompt = prompt as unknown as {
+    _writeToOutput: (value: string) => void;
+  };
   const originalWrite = mutablePrompt._writeToOutput.bind(prompt);
 
   if (hidden) {
     mutablePrompt._writeToOutput = (value: string) => {
-      if (value === question || value.includes("\n")) process.stdout.write(value);
+      if (value === question || value.includes("\n"))
+        process.stdout.write(value);
     };
   }
 
@@ -42,11 +54,16 @@ function ask(question: string, hidden = false): Promise<string> {
   });
 }
 
-async function promptForPrivateKey(expectedAddress?: string): Promise<string | null> {
+async function promptForPrivateKey(
+  expectedAddress?: string,
+): Promise<string | null> {
   const maxAttempts = 3;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    const privateKey = await ask("Enter your private key (input hidden): ", true);
+    const privateKey = await ask(
+      "Enter your private key (input hidden): ",
+      true,
+    );
     let wallet: ethers.Wallet;
 
     try {
@@ -58,7 +75,10 @@ async function promptForPrivateKey(expectedAddress?: string): Promise<string | n
       continue;
     }
 
-    if (expectedAddress && wallet.address.toLowerCase() !== expectedAddress.toLowerCase()) {
+    if (
+      expectedAddress &&
+      wallet.address.toLowerCase() !== expectedAddress.toLowerCase()
+    ) {
       console.error(
         `That key does not match the selected address. Try again (${attempt}/${maxAttempts}).`,
       );
@@ -68,7 +88,9 @@ async function promptForPrivateKey(expectedAddress?: string): Promise<string | n
     return wallet.privateKey;
   }
 
-  console.error("Three attempts used. No identity was changed; run npm run start-chat to try again.");
+  console.error(
+    "Three attempts used. No identity was changed; run npm run start-chat to try again.",
+  );
   return null;
 }
 
@@ -77,7 +99,9 @@ async function getPrivateKey(providedKey?: string): Promise<string | null> {
     try {
       return new ethers.Wallet(providedKey).privateKey;
     } catch {
-      console.error("The --key value is not a valid private key. Omit --key to enter it interactively.");
+      console.error(
+        "The --key value is not a valid private key. Omit --key to enter it interactively.",
+      );
       return null;
     }
   }
@@ -89,8 +113,9 @@ async function getPrivateKey(providedKey?: string): Promise<string | null> {
       console.log(`  ${index + 1}. ${identity.alias} — ${identity.address}`);
     });
 
-    const selection = (await ask('Choose an identity number, or type "new" to add one: '))
-      .toLowerCase();
+    const selection = (
+      await ask('Choose an identity number, or type "new" to add one: ')
+    ).toLowerCase();
 
     if (selection !== "new" && selection !== "n") {
       const selectedIndex = Number(selection) - 1;
@@ -103,8 +128,11 @@ async function getPrivateKey(providedKey?: string): Promise<string | null> {
     }
   }
 
-  const setupChoice = (await ask("Create a new local wallet or import a private key? [create/import]: "))
-    .toLowerCase();
+  const setupChoice = (
+    await ask(
+      "Create a new local wallet or import a private key? [create/import]: ",
+    )
+  ).toLowerCase();
   let address: string;
   let savedPrivateKey: string;
 
@@ -114,8 +142,14 @@ async function getPrivateKey(providedKey?: string): Promise<string | null> {
     savedPrivateKey = wallet.privateKey;
     console.log("\nNew wallet created locally.");
     console.log(`Address: ${address}`);
-    console.log("Back up this private key somewhere safe. It cannot be recovered if lost:");
-    console.log(savedPrivateKey);
+    console.log(
+      "Back up this private key somewhere safe. It cannot be recovered if lost:",
+    );
+    const reveal = await ask(
+      "Type reveal to show the private key for backup (visible terminal output): ",
+    );
+    if (reveal !== "reveal") return null;
+    process.stdout.write(savedPrivateKey + "\n");
     await ask("Press Enter after you have safely backed up the private key: ");
   } else if (setupChoice === "import") {
     const privateKey = await promptForPrivateKey();
@@ -129,20 +163,27 @@ async function getPrivateKey(providedKey?: string): Promise<string | null> {
   }
 
   const defaultAlias = `Wallet ${listLocalIdentities().length + 1}`;
-  const alias = (await ask(`Choose a name for this address [${defaultAlias}]: `)) || defaultAlias;
+  const alias =
+    (await ask(`Choose a name for this address [${defaultAlias}]: `)) ||
+    defaultAlias;
   saveLocalIdentity(address, alias);
-  console.log(`Saved ${alias} and ${address} locally. The private key was not saved.`);
+  console.log(
+    `Saved ${alias} and ${address} locally. The private key was not saved.`,
+  );
   return savedPrivateKey;
 }
 
-
-async function promptForRecipientAddress(initialValue?: string): Promise<string | null> {
+async function promptForRecipientAddress(
+  initialValue?: string,
+): Promise<string | null> {
   const maxAttempts = 3;
   let candidate = initialValue;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     if (!candidate) {
-      candidate = await ask("Recipient Ethereum address (0x followed by 40 hex characters): ");
+      candidate = await ask(
+        "Recipient Ethereum address (0x followed by 40 hex characters): ",
+      );
     }
 
     if (ethers.isAddress(candidate)) {
@@ -167,11 +208,26 @@ program
 program
   .command("start-chat")
   .description("Start a chat session")
-  .option("-k, --key <privateKey>", "Existing Ethereum private key (interactive setup is safer)")
+  .option(
+    "-k, --key <privateKey>",
+    "Existing Ethereum private key (interactive setup is safer)",
+  )
   .option("-r, --recipient <address>", "Recipient Ethereum address")
   .option("-i, --invite <contactInvite>", "Recipient Waku Chat contact invite")
   .action(async (opts) => {
-    const key = await getPrivateKey(opts.key);
+    if (opts.key) {
+      console.error(
+        "--key is disabled because command arguments expose secrets. Use hidden interactive input.",
+      );
+      return;
+    }
+    if (!process.stdin.isTTY || !process.stdout.isTTY) {
+      console.error(
+        "Identity setup requires an interactive terminal to protect key input and backup output.",
+      );
+      return;
+    }
+    const key = await getPrivateKey();
     if (!key) {
       sharedPrompt?.close();
       return;
@@ -180,14 +236,18 @@ program
     // 1. Create identity
     const identity = await UserIdentity.createUser(key);
     const ownInvite = createContactInvite(identity.address, identity.publicKey);
-    console.log("\nShare this contact invite with the person you want to chat with:");
+    console.log(
+      "\nShare this contact invite with the person you want to chat with:",
+    );
     console.log(ownInvite);
 
     let inviteInput: string | undefined = opts.invite;
     let recipient: string | undefined = opts.recipient;
 
     if (!inviteInput && !recipient) {
-      const contactInput = await ask("Paste a contact invite or enter a saved contact address: ");
+      const contactInput = await ask(
+        "Paste a contact invite or enter a saved contact address: ",
+      );
       if (contactInput.startsWith("waku-chat://invite/")) {
         inviteInput = contactInput;
       } else {
@@ -200,13 +260,15 @@ program
       try {
         contact = parseContactInvite(inviteInput);
       } catch (error) {
-        console.error(error instanceof Error ? error.message : "Contact invite is invalid.");
+        console.error(
+          error instanceof Error ? error.message : "Contact invite is invalid.",
+        );
         sharedPrompt?.close();
         return;
       }
 
       if (recipient && !ethers.isAddress(recipient)) {
-        recipient = await promptForRecipientAddress(recipient) ?? undefined;
+        recipient = (await promptForRecipientAddress(recipient)) ?? undefined;
         if (!recipient) {
           sharedPrompt?.close();
           return;
@@ -214,7 +276,9 @@ program
       }
 
       if (recipient && ethers.getAddress(recipient) !== contact.address) {
-        console.error("The recipient address does not match the imported contact invite.");
+        console.error(
+          "The recipient address does not match the imported contact invite.",
+        );
         sharedPrompt?.close();
         return;
       }
@@ -223,7 +287,7 @@ program
       recipient = contact.address;
       console.log(`Saved contact invite for ${contact.address}.`);
     } else {
-      recipient = await promptForRecipientAddress(recipient) ?? undefined;
+      recipient = (await promptForRecipientAddress(recipient)) ?? undefined;
       if (!recipient) {
         sharedPrompt?.close();
         return;
@@ -235,7 +299,7 @@ program
 
     // 3. Broadcast public key
     await BroadcastePublicKey(identity.address, identity.publicKey);
-    console.log("📡 Broadcasted public key:", identity.publicKey);
+    console.log("Saved own public key locally:", identity.publicKey);
 
     // 4. Chat loop
     console.log(`👤 Chat started as ${identity.address}`);
@@ -244,9 +308,14 @@ program
 
     const rl = getPrompt();
     rl.on("line", async (input: string) => {
-      await sendMessage(identity, recipient, input);
+      try {
+        await sendMessage(identity, recipient, input);
+      } catch {
+        console.error(
+          "Message could not be sent. Check your connection and contact.",
+        );
+      }
     });
   });
-
 
 program.parseAsync(process.argv);
