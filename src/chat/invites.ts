@@ -13,15 +13,22 @@ export interface ContactInvite {
  * Encode the sender's public contact details in a copyable, versioned invite.
  * The private key is never part of an invite.
  */
-export function createContactInvite(address: string, publicKey: string): string {
+export function createContactInvite(
+  address: string,
+  publicKey: string,
+): string {
   const normalizedAddress = normalizeAddress(address);
   const normalizedPublicKey = normalizePublicKey(publicKey);
+  if (ethers.computeAddress(normalizedPublicKey) !== normalizedAddress)
+    throw new Error("Contact key does not match its address.");
   const payload: ContactInvite = {
     version: 1,
     address: normalizedAddress,
     publicKey: normalizedPublicKey,
   };
-  const encoded = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
+  const encoded = Buffer.from(JSON.stringify(payload), "utf8").toString(
+    "base64url",
+  );
   return `${INVITE_PREFIX}${encoded}`;
 }
 
@@ -54,10 +61,18 @@ export function parseContactInvite(input: string): ContactInvite {
   if (candidate.version !== 1) {
     throw new Error("This contact invite version is not supported.");
   }
-  if (typeof candidate.address !== "string" || typeof candidate.publicKey !== "string") {
+  if (
+    typeof candidate.address !== "string" ||
+    typeof candidate.publicKey !== "string"
+  ) {
     throw new Error("Contact invite is missing its address or public key.");
   }
 
+  if (
+    ethers.computeAddress(normalizePublicKey(candidate.publicKey)) !==
+    normalizeAddress(candidate.address)
+  )
+    throw new Error("Contact key does not match its address.");
   return {
     version: 1,
     address: normalizeAddress(candidate.address),
@@ -74,7 +89,9 @@ function normalizeAddress(address: string): string {
 
 function normalizePublicKey(publicKey: string): string {
   if (!/^0x04[0-9a-fA-F]{128}$/.test(publicKey)) {
-    throw new Error("Contact public key must be an uncompressed secp256k1 key.");
+    throw new Error(
+      "Contact public key must be an uncompressed secp256k1 key.",
+    );
   }
 
   try {
