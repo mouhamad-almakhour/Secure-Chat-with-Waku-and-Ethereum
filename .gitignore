@@ -29,3 +29,5 @@ secure-storage/
 # UI build metadata
 ui/*.tsbuildinfo
 previews
+
+SECURITY_REVIEW.md
